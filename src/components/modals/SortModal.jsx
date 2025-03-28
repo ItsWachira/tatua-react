@@ -41,7 +41,7 @@ const SortModal = ({ activeSorts, onClose, onApply }) => {
     <div className="modal-overlay" id="peopleSortModal">
       <div className="modal">
         <div className="modal-header">
-          <h3 className="modal-title">Sort People Data</h3>
+          <h3 className="modal-title">Sort Table Data</h3>
           <button className="close-modal" onClick={onClose}>×</button>
         </div>
         
@@ -50,13 +50,13 @@ const SortModal = ({ activeSorts, onClose, onApply }) => {
             {sorts.map((sort, index) => (
               <div className="sort-row" key={index}>
                 <div className="sort-col">
-                  <label>Field</label>
+                  <label>Column</label>
                   <select 
                     className="sort-field form-control" 
                     value={sort.field}
                     onChange={(e) => updateSort(index, 'field', e.target.value)}
                   >
-                    <option value="">Select Field</option>
+                    <option value="">Select Column</option>
                     <option value="UserName">Username</option>
                     <option value="FirstName">First Name</option>
                     <option value="LastName">Last Name</option>
@@ -67,13 +67,13 @@ const SortModal = ({ activeSorts, onClose, onApply }) => {
                 </div>
                 
                 <div className="sort-col">
-                  <label>Direction</label>
+                  <label>Condition</label>
                   <select 
                     className="sort-direction form-control"
                     value={sort.direction}
                     onChange={(e) => updateSort(index, 'direction', e.target.value)}
                   >
-                    <option value="">Select Direction</option>
+                    <option value="">Select</option>
                     <option value="asc">Ascending</option>
                     <option value="desc">Descending</option>
                   </select>
@@ -114,7 +114,7 @@ const SortModal = ({ activeSorts, onClose, onApply }) => {
               id="applyPeopleSortBtn"
               onClick={applySorts}
             >
-              Apply Sorts
+              Sort
             </button>
           </div>
         </div>

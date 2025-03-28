@@ -8,55 +8,55 @@ const FilterModal = ({ activeFilters, onClose, onApply }) => {
       : [{ field: '', operator: '', value: '' }]
   );
   
-  const addSortRow = () => {
-    setSorts([...sorts, { field: '', direction: '' }]);
+  const addFilterRow = () => {
+    setFilters([...filters, { field: '', operator: '', value: '' }]);
   };
   
-  const removeSortRow = (index) => {
-    if (sorts.length > 1) {
-      const newSorts = [...sorts];
-      newSorts.splice(index, 1);
-      setSorts(newSorts);
+  const removeFilterRow = (index) => {
+    if (filters.length > 1) {
+      const newFilters = [...filters];
+      newFilters.splice(index, 1);
+      setFilters(newFilters);
     }
   };
   
-  const updateSort = (index, field, value) => {
-    const newSorts = [...sorts];
-    newSorts[index] = { ...newSorts[index], [field]: value };
-    setSorts(newSorts);
+  const updateFilter = (index, field, value) => {
+    const newFilters = [...filters];
+    newFilters[index] = { ...newFilters[index], [field]: value };
+    setFilters(newFilters);
   };
   
-  const resetSorts = () => {
-    setSorts([{ field: '', direction: '' }]);
+  const resetFilters = () => {
+    setFilters([{ field: '', operator: '', value: '' }]);
   };
   
-  const applySorts = () => {
-    const validSorts = sorts.filter(
-      sort => sort.field && sort.direction
+  const applyFilters = () => {
+    const validFilters = filters.filter(
+      filter => filter.field && filter.operator && filter.value
     );
-    onApply(validSorts);
+    onApply(validFilters);
   };
   
   return (
-    <div className="modal-overlay" id="peopleSortModal">
+    <div className="modal-overlay" id="peopleFilterModal">
       <div className="modal">
         <div className="modal-header">
-          <h3 className="modal-title">Sort People Data</h3>
+          <h3 className="modal-title">Filter Table Data</h3>
           <button className="close-modal" onClick={onClose}>×</button>
         </div>
         
         <div className="modal-body">
-          <div id="peopleSortContainer">
+          <div id="peopleFilterContainer">
             {filters.map((filter, index) => (
               <div className="filter-row" key={index}>
                 <div className="filter-col">
-                  <label>Field</label>
+                  <label>Column</label>
                   <select 
                     className="filter-field form-control" 
                     value={filter.field}
                     onChange={(e) => updateFilter(index, 'field', e.target.value)}
                   >
-                    <option value="">Select Field</option>
+                    <option value="">Select Column</option>
                     <option value="UserName">Username</option>
                     <option value="FirstName">First Name</option>
                     <option value="LastName">Last Name</option>
@@ -106,11 +106,11 @@ const FilterModal = ({ activeFilters, onClose, onApply }) => {
           </div>
           
           <button 
-            className="add-sort-btn" 
-            id="addPeopleSortBtn"
-            onClick={addSortRow}
+            className="add-filter-btn" 
+            id="addPeopleFilterBtn"
+            onClick={addFilterRow}
           >
-            <FaPlus className="control-icon" /> Add Sort
+            <FaPlus className="control-icon" /> Add Filter
           </button>
         </div>
         
@@ -118,17 +118,17 @@ const FilterModal = ({ activeFilters, onClose, onApply }) => {
           <div className="modal-actions">
             <button 
               className="modal-btn reset-btn" 
-              id="resetPeopleSortBtn"
-              onClick={resetSorts}
+              id="resetPeopleFilterBtn"
+              onClick={resetFilters}
             >
               Reset
             </button>
             <button 
               className="modal-btn confirm-btn" 
-              id="applyPeopleSortBtn"
-              onClick={applySorts}
+              id="applyPeopleFilterBtn"
+              onClick={applyFilters}
             >
-              Apply Sorts
+              Filter
             </button>
           </div>
         </div>

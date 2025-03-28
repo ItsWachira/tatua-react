@@ -16,7 +16,7 @@ const Header = ({ activeView, setActiveView }) => {
           <FaUsers className="control-icon" />
           People Data
         </button>
-        
+{/*         
         <button 
           className={`nav-btn ${activeView === 'raiseTicket' ? 'active' : ''}`}
           onClick={() => setActiveView('raiseTicket')}
@@ -31,7 +31,7 @@ const Header = ({ activeView, setActiveView }) => {
         >
           <FaList className="control-icon" />
           Tickets List
-        </button>
+        </button> */}
       </nav>
       
       {/* <div className="storage-selector">

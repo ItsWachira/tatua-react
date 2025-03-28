@@ -45,7 +45,7 @@ const usePeopleStore = create((set, get) => ({
       let url = `${API_BASE_URL}${PEOPLE_ENDPOINT}?$count=true&$top=${pageSize}&$skip=${(currentPage - 1) * pageSize}`;
       url += '&$select=UserName,FirstName,LastName,MiddleName,Gender,Age';
       
-      // Add filters
+      
       if (activeFilters.length > 0) {
         const filterQueries = activeFilters.map(filter => {
           const { field, operator, value } = filter;
@@ -79,7 +79,7 @@ const usePeopleStore = create((set, get) => ({
         }
       }
       
-      // Add sorts
+      // Add sorting conditions
       if (activeSorts.length > 0) {
         const sortQueries = activeSorts.map(sort => {
           return `${sort.field} ${sort.direction}`;
@@ -106,7 +106,6 @@ const usePeopleStore = create((set, get) => ({
     }
   },
   
-  // Navigation
   navigatePage: (direction) => {
     const { currentPage, totalCount, pageSize } = get();
     const newPage = currentPage + direction;
@@ -120,7 +119,7 @@ const usePeopleStore = create((set, get) => ({
     get().loadPeopleData();
   },
   
-  // Set page size
+  
   setPageSize: (size) => {
     if (size > 0) {
       set({ pageSize: size, currentPage: 1 });
@@ -128,25 +127,25 @@ const usePeopleStore = create((set, get) => ({
     }
   },
   
-  // Apply filters
+  
   applyFilters: (filters) => {
     set({ activeFilters: filters, currentPage: 1 });
     get().loadPeopleData();
   },
   
-  // Clear filters
+  
   clearFilters: () => {
     set({ activeFilters: [] });
     get().loadPeopleData();
   },
   
-  // Apply sorts
+  
   applySorts: (sorts) => {
     set({ activeSorts: sorts });
     get().loadPeopleData();
   },
   
-  // Clear sorts
+  
   clearSorts: () => {
     set({ activeSorts: [] });
     get().loadPeopleData();
