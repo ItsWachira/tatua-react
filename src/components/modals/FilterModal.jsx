@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { FaPlus, FaTimes } from 'react-icons/fa';
 
-const FilterModal = ({ activeFilters, onClose, onApply }) => {
+const FilterModal = ({ 
+  activeFilters, 
+  onClose, 
+  onApply,
+  // Add columns prop with default empty array
+  columns = []
+}) => {
   const [filters, setFilters] = useState(
     activeFilters && activeFilters.length > 0 
       ? [...activeFilters] 
@@ -38,7 +44,7 @@ const FilterModal = ({ activeFilters, onClose, onApply }) => {
   };
   
   return (
-    <div className="modal-overlay" id="peopleFilterModal">
+    <div className="modal-overlay" id="filterModal">
       <div className="modal">
         <div className="modal-header">
           <h3 className="modal-title">Filter Table Data</h3>
@@ -46,7 +52,7 @@ const FilterModal = ({ activeFilters, onClose, onApply }) => {
         </div>
         
         <div className="modal-body">
-          <div id="peopleFilterContainer">
+          <div id="filterContainer">
             {filters.map((filter, index) => (
               <div className="filter-row" key={index}>
                 <div className="filter-col">
@@ -57,12 +63,12 @@ const FilterModal = ({ activeFilters, onClose, onApply }) => {
                     onChange={(e) => updateFilter(index, 'field', e.target.value)}
                   >
                     <option value="">Select Column</option>
-                    <option value="UserName">Username</option>
-                    <option value="FirstName">First Name</option>
-                    <option value="LastName">Last Name</option>
-                    <option value="MiddleName">Middle Name</option>
-                    <option value="Gender">Gender</option>
-                    <option value="Age">Age</option>
+                    {/* Dynamically generate options based on columns prop */}
+                    {columns.map((column) => (
+                      <option key={column.accessor} value={column.accessor}>
+                        {column.header}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 
@@ -107,7 +113,7 @@ const FilterModal = ({ activeFilters, onClose, onApply }) => {
           
           <button 
             className="add-filter-btn" 
-            id="addPeopleFilterBtn"
+            id="addFilterBtn"
             onClick={addFilterRow}
           >
             <FaPlus className="control-icon" /> Add Filter
@@ -118,14 +124,14 @@ const FilterModal = ({ activeFilters, onClose, onApply }) => {
           <div className="modal-actions">
             <button 
               className="modal-btn reset-btn" 
-              id="resetPeopleFilterBtn"
+              id="resetFilterBtn"
               onClick={resetFilters}
             >
               Reset
             </button>
             <button 
               className="modal-btn confirm-btn" 
-              id="applyPeopleFilterBtn"
+              id="applyFilterBtn"
               onClick={applyFilters}
             >
               Filter

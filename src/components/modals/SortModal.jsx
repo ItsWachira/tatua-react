@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { FaPlus, FaTimes } from 'react-icons/fa';
 
-const SortModal = ({ activeSorts, onClose, onApply }) => {
+const SortModal = ({ 
+  activeSorts, 
+  onClose, 
+  onApply,
+  columns = []
+}) => {
   const [sorts, setSorts] = useState(
     activeSorts && activeSorts.length > 0
       ? [...activeSorts] 
@@ -38,7 +43,7 @@ const SortModal = ({ activeSorts, onClose, onApply }) => {
   };
   
   return (
-    <div className="modal-overlay" id="peopleSortModal">
+    <div className="modal-overlay" id="sortModal">
       <div className="modal">
         <div className="modal-header">
           <h3 className="modal-title">Sort Table Data</h3>
@@ -46,7 +51,7 @@ const SortModal = ({ activeSorts, onClose, onApply }) => {
         </div>
         
         <div className="modal-body">
-          <div id="peopleSortContainer">
+          <div id="sortContainer">
             {sorts.map((sort, index) => (
               <div className="sort-row" key={index}>
                 <div className="sort-col">
@@ -57,17 +62,16 @@ const SortModal = ({ activeSorts, onClose, onApply }) => {
                     onChange={(e) => updateSort(index, 'field', e.target.value)}
                   >
                     <option value="">Select Column</option>
-                    <option value="UserName">Username</option>
-                    <option value="FirstName">First Name</option>
-                    <option value="LastName">Last Name</option>
-                    <option value="MiddleName">Middle Name</option>
-                    <option value="Gender">Gender</option>
-                    <option value="Age">Age</option>
+                    {columns.map((column) => (
+                      <option key={column.accessor} value={column.accessor}>
+                        {column.header}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 
                 <div className="sort-col">
-                  <label>Condition</label>
+                  <label>Direction</label>
                   <select 
                     className="sort-direction form-control"
                     value={sort.direction}
@@ -93,7 +97,7 @@ const SortModal = ({ activeSorts, onClose, onApply }) => {
           
           <button 
             className="add-sort-btn" 
-            id="addPeopleSortBtn"
+            id="addSortBtn"
             onClick={addSortRow}
           >
             <FaPlus className="control-icon" /> Add Sort
@@ -104,14 +108,14 @@ const SortModal = ({ activeSorts, onClose, onApply }) => {
           <div className="modal-actions">
             <button 
               className="modal-btn reset-btn" 
-              id="resetPeopleSortBtn"
+              id="resetSortBtn"
               onClick={resetSorts}
             >
               Reset
             </button>
             <button 
               className="modal-btn confirm-btn" 
-              id="applyPeopleSortBtn"
+              id="applySortBtn"
               onClick={applySorts}
             >
               Sort

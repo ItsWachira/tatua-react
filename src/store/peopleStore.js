@@ -1,154 +1,149 @@
 import { create } from 'zustand';
-import axios from 'axios';
-
-const API_BASE_URL = 'https://services.odata.org/TripPinRESTierService/(S(zmvnmwolerxlglf1jhdcrgek))';
-const PEOPLE_ENDPOINT = '/People';
-const DEFAULT_PAGE_SIZE = 10;
+import { fetchPeopleData, fetchAllPeopleData } from '../api/api';
 
 const usePeopleStore = create((set, get) => ({
   people: [],
   loading: false,
   error: null,
-  currentPage: 1,
-  pageSize: DEFAULT_PAGE_SIZE,
   totalCount: 0,
+  currentPage: 1,
+  pageSize: 10,
   activeFilters: [],
   activeSorts: [],
   
-  // Fetch all people data
+  loadPeopleData: async (params = {}) => {
+    set({ loading: true, error: null });
+    
+    try {
+      
+      const { 
+        page = get().currentPage, 
+        pageSize = get().pageSize,
+        filters = get().activeFilters,
+        sorts = get().activeSorts
+      } = params;
+      
+    
+      
+      const result = await fetchPeopleData({
+        page,
+        pageSize,
+        filters,
+        sorts
+      });
+      
+      console.log("People data loaded:", result);
+      
+      if (result.error) {
+        set({ error: result.error, loading: false });
+        return result;
+      }
+      
+      set({ 
+        people: result.data || [],
+        totalCount: result.totalCount || 0,
+        currentPage: page,
+        pageSize: pageSize,
+        loading: false
+      });
+      
+      return result;
+    } catch (error) {
+      console.error("Error in loadPeopleData:", error);
+      set({ 
+        error: error.message || "Failed to load data", 
+        loading: false 
+      });
+      
+      return {
+        data: [],
+        totalCount: 0,
+        error: error.message
+      };
+    }
+  },
+  
+ 
   fetchAllPeople: async () => {
     set({ loading: true, error: null });
-    try {
-      let url = `${API_BASE_URL}${PEOPLE_ENDPOINT}?$count=true`;
-      url += '&$select=UserName,FirstName,LastName,MiddleName,Gender,Age';
-      
-      const response = await axios.get(url);
-      const data = response.data;
-      
-      set({ 
-        people: data.value,
-        totalCount: data['@odata.count'] || data.value.length,
-        loading: false
-      });
-    } catch (error) {
-      set({ error: error.message, loading: false });
-      console.error('Error fetching all people data:', error);
-    }
-  },
-  
-  // Load people data with pagination, filtering, and sorting
-  loadPeopleData: async () => {
-    const { currentPage, pageSize, activeFilters, activeSorts } = get();
-    set({ loading: true, error: null });
     
     try {
-      let url = `${API_BASE_URL}${PEOPLE_ENDPOINT}?$count=true&$top=${pageSize}&$skip=${(currentPage - 1) * pageSize}`;
-      url += '&$select=UserName,FirstName,LastName,MiddleName,Gender,Age';
+   
       
+      const result = await fetchAllPeopleData();
       
-      if (activeFilters.length > 0) {
-        const filterQueries = activeFilters.map(filter => {
-          const { field, operator, value } = filter;
-          
-          switch (operator) {
-            case 'eq':
-              return `${field} eq '${value}'`;
-            case 'contains':
-              return `contains(${field}, '${value}')`;
-            case 'startswith':
-              return `startswith(${field}, '${value}')`;
-            case 'endswith':
-              return `endswith(${field}, '${value}')`;
-            case 'gt':
-              if (field === 'Age') {
-                return `${field} gt ${value}`;
-              }
-              return `${field} gt '${value}'`;
-            case 'lt':
-              if (field === 'Age') {
-                return `${field} lt ${value}`;
-              }
-              return `${field} lt '${value}'`;
-            default:
-              return '';
-          }
-        }).filter(query => query !== '');
-        
-        if (filterQueries.length > 0) {
-          url += `&$filter=${filterQueries.join(' and ')}`;
-        }
+      console.log("All people data fetched:", result);
+      
+      if (result.error) {
+        set({ error: result.error, loading: false });
+        return result;
       }
-      
-      // Add sorting conditions
-      if (activeSorts.length > 0) {
-        const sortQueries = activeSorts.map(sort => {
-          return `${sort.field} ${sort.direction}`;
-        });
-        
-        if (sortQueries.length > 0) {
-          url += `&$orderby=${sortQueries.join(',')}`;
-        }
-      }
-      
-      console.log("Fetching data from:", url);
-      
-      const response = await axios.get(url);
-      const data = response.data;
       
       set({ 
-        people: data.value,
-        totalCount: data['@odata.count'] || get().totalCount,
-        loading: false
+        people: result.data || [],
+        totalCount: result.totalCount || 0,
+        loading: false,
+        pageSize: result.data.length || 10
       });
+      
+      return result;
     } catch (error) {
-      set({ error: error.message, loading: false });
-      console.error('Error fetching people data:', error);
+      console.error("Error in fetchAllPeople:", error);
+      set({ 
+        error: error.message || "Failed to fetch all data", 
+        loading: false 
+      });
+      
+      return {
+        data: [],
+        totalCount: 0,
+        error: error.message
+      };
     }
   },
   
-  navigatePage: (direction) => {
-    const { currentPage, totalCount, pageSize } = get();
-    const newPage = currentPage + direction;
-    const totalPages = Math.ceil(totalCount / pageSize);
-    
-    if (newPage < 1 || (totalPages > 0 && newPage > totalPages)) {
-      return;
-    }
-    
-    set({ currentPage: newPage });
-    get().loadPeopleData();
+
+  setPage: (page) => {
+    set({ currentPage: page });
+    get().loadPeopleData({ page });
   },
   
-  
-  setPageSize: (size) => {
-    if (size > 0) {
-      set({ pageSize: size, currentPage: 1 });
-      get().loadPeopleData();
-    }
+  setPageSize: (pageSize) => {
+    set({ pageSize, currentPage: 1 });
+    get().loadPeopleData({ pageSize, page: 1 });
   },
   
-  
+
   applyFilters: (filters) => {
     set({ activeFilters: filters, currentPage: 1 });
-    get().loadPeopleData();
+    get().loadPeopleData({ filters, page: 1 });
   },
   
-  
+
   clearFilters: () => {
-    set({ activeFilters: [] });
-    get().loadPeopleData();
+    set({ activeFilters: [], currentPage: 1 });
+    get().loadPeopleData({ filters: [], page: 1 });
   },
   
-  
+
   applySorts: (sorts) => {
     set({ activeSorts: sorts });
-    get().loadPeopleData();
+    get().loadPeopleData({ sorts });
   },
   
-  
+
   clearSorts: () => {
     set({ activeSorts: [] });
-    get().loadPeopleData();
+    get().loadPeopleData({ sorts: [] });
+  },
+  
+
+  navigatePage: (direction) => {
+    const newPage = get().currentPage + direction;
+    if (newPage < 1) return;
+    
+    set({ currentPage: newPage });
+    get().loadPeopleData({ page: newPage });
   }
 }));
 

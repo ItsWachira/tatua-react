@@ -3,17 +3,18 @@ import { FaUpload } from 'react-icons/fa';
 
 const TicketForm = () => {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    priority: '',
-    category: '',
-    assignee: '',
-    dueDate: '',
+    fullName: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: '',
+    preferredContact: 'email',
     attachment: null,
     acceptTerms: false
   });
   
   const [fileName, setFileName] = useState('');
+  const [submitSuccess, setSubmitSuccess] = useState(false);
   
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -36,107 +37,173 @@ const TicketForm = () => {
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Ticket data submitted:', formData);
     
-    alert('Ticket submitted successfully!');
+    try {
+      // Get existing tickets
+      const existingTickets = JSON.parse(localStorage.getItem('tickets')) || [];
+      
+      // Calculate next ID
+      const nextId = existingTickets.length > 0 
+        ? Math.max(...existingTickets.map(ticket => parseInt(ticket.id))) + 1 
+        : 1;
+      
+      // Create new ticket object
+      const newTicket = {
+        id: nextId.toString(),
+        raisedBy: formData.fullName,
+        ticketDetails: formData.message,
+        subject: formData.subject,
+        email: formData.email,
+        phone: formData.phone,
+        preferredContact: formData.preferredContact,
+        dateCreated: new Date().toISOString(),
+        status: 'Open',
+        attachmentName: fileName || null
+      };
+
+      // Add to existing tickets
+      const updatedTickets = [...existingTickets, newTicket];
+      
+      // Save to localStorage
+      localStorage.setItem('tickets', JSON.stringify(updatedTickets));
+      
+      // Dispatch storage event to notify other components
+      window.dispatchEvent(new Event('storage'));
+      
+      // Show success alert
+      alert(`Ticket #${nextId} has been successfully submitted!`);
+      
+      // Also show the success message in the UI
+      setSubmitSuccess(true);
+      
+      // Reset form
+      setFormData({
+        fullName: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: '',
+        preferredContact: 'email',
+        attachment: null,
+        acceptTerms: false
+      });
+      setFileName('');
+      
+  
+      setTimeout(() => setSubmitSuccess(false), 3000);
+      
+    
+    } catch (error) {
+      console.error("Error saving ticket:", error);
+      alert(`Error saving ticket: ${error.message}`);
+    }
   };
   
   return (
     <div className="content">
-      <h2>Raise a Ticket</h2>
       <p className="form-intro">Please fill out the form below to submit a new support ticket.</p>
       
+    
       <form className="ticket-form" onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="title">Title:</label>
+          <label htmlFor="fullName">Full Name:</label>
           <input 
             type="text" 
-            id="title" 
-            name="title" 
+            id="fullName" 
+            name="fullName" 
             className="form-control" 
-            placeholder="Enter ticket title" 
-            value={formData.title}
+            placeholder="Enter your full name" 
+            value={formData.fullName}
             onChange={handleInputChange}
             required
           />
         </div>
         
         <div className="form-group">
-          <label htmlFor="description">Description:</label>
-          <textarea 
-            id="description" 
-            name="description" 
+          <label htmlFor="email">Email Address:</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
             className="form-control" 
-            placeholder="Describe your issue in detail" 
-            value={formData.description}
+            placeholder="Enter your email address" 
+            value={formData.email}
             onChange={handleInputChange}
             required
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="phone">Phone Number:</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone" 
+            className="form-control" 
+            placeholder="Enter your phone number" 
+            value={formData.phone}
+            onChange={handleInputChange}
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="subject">Subject:</label>
+          <select 
+            id="subject" 
+            name="subject" 
+            className="form-control"
+            value={formData.subject}
+            onChange={handleInputChange}
+            required
+          >
+            <option value="">Select a subject</option>
+            <option value="Technical Issue">Technical Issue</option>
+            <option value="Billing Question">Billing Question</option>
+            <option value="Feature Request">Feature Request</option>
+            <option value="General Inquiry">General Inquiry</option>
+          </select>
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="message">Message:</label>
+          <textarea 
+            id="message" 
+            name="message" 
+            className="form-control" 
+            placeholder="Describe your issue in detail" 
+            value={formData.message}
+            onChange={handleInputChange}
+            required
+            rows="5"
           ></textarea>
         </div>
         
         <div className="form-group">
-          <label htmlFor="priority">Priority:</label>
-          <select 
-            id="priority" 
-            name="priority" 
-            className="form-control"
-            value={formData.priority}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="">Select Priority</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="critical">Critical</option>
-          </select>
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="category">Category:</label>
-          <select 
-            id="category" 
-            name="category" 
-            className="form-control"
-            value={formData.category}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="">Select Category</option>
-            <option value="technical">Technical Issue</option>
-            <option value="billing">Billing Question</option>
-            <option value="feature">Feature Request</option>
-            <option value="account">Account Management</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="assignee">Assign To:</label>
-          <select 
-            id="assignee" 
-            name="assignee" 
-            className="form-control"
-            value={formData.assignee}
-            onChange={handleInputChange}
-          >
-            <option value="">Auto-assign</option>
-            <option value="support">Support Team</option>
-            <option value="technical">Technical Team</option>
-            <option value="billing">Billing Department</option>
-          </select>
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="dueDate">Due Date:</label>
-          <input 
-            type="date" 
-            id="dueDate" 
-            name="dueDate" 
-            className="form-control"
-            value={formData.dueDate}
-            onChange={handleInputChange}
-          />
+          <label>Preferred Contact:</label>
+          <div className="radio-group">
+            <div className="radio-option">
+              <input 
+                type="radio" 
+                id="contactEmail" 
+                name="preferredContact" 
+                value="email"
+                checked={formData.preferredContact === 'email'}
+                onChange={handleInputChange}
+              />
+              <label htmlFor="contactEmail">Email</label>
+            </div>
+            <div className="radio-option">
+              <input 
+                type="radio" 
+                id="contactPhone" 
+                name="preferredContact" 
+                value="phone"
+                checked={formData.preferredContact === 'phone'}
+                onChange={handleInputChange}
+              />
+              <label htmlFor="contactPhone">Phone</label>
+            </div>
+          </div>
         </div>
         
         <div className="form-group">
@@ -152,7 +219,7 @@ const TicketForm = () => {
             <label htmlFor="attachment" className="file-upload-btn">
               <FaUpload className="control-icon" /> Choose File
             </label>
-            {fileName && <span className="file-name">{fileName}</span>}
+            <span className="file-name">{fileName || 'No file chosen'}</span>
           </div>
         </div>
         
@@ -171,7 +238,7 @@ const TicketForm = () => {
           </div>
         </div>
         
-        <button type="submit" className="submit-btn">Submit</button>
+        <button type="submit" className="submit-btn">Submit Ticket</button>
       </form>
     </div>
   );

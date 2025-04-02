@@ -14,8 +14,8 @@ function App() {
       
       <div className="content">
         {activeView === 'peopleData' && <PeopleDataView />}
-        {/* {activeView === 'raiseTicket' && <TicketForm />}
-        {activeView === 'ticketsList' && <TicketsList />} */}
+        {activeView === 'raiseTicket' && <TicketForm />}
+        {activeView === 'ticketsList' && <TicketsList />}
       </div>
     </div>
   )

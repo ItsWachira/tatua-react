@@ -1,0 +1,28 @@
+
+.ticket-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 15px; 
+}
+
+.action-icon {
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.delete-icon {
+  color: #EA4335; 
+}
+
+
+.no-tickets-message {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+}
+
+.no-tickets-message p {
+  margin: 0;
+  font-size: 16px;
+}
